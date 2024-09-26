@@ -11,19 +11,16 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(
-  cors({
-    origin: "https://travel-story-five.vercel.app/login", // Update with your frontend URL
-    credentials: true,
-  })
-);
+app.use(cors());
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGO_DB_URL)
+  .connect(
+    "mongodb+srv://fawadiqbal274:12345@travelstory.exbeg.mongodb.net/test?retryWrites=true&w=majority&appName=travelstory"
+  )
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Could not connect to MongoDB...", err));
 
@@ -34,14 +31,8 @@ app.use(travelStoryRoutes);
 // Serve static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
-export default app;
-// Only export `app` in serverless environments (like Vercel)
-if (process.env.VERCEL) {
-  // Serverless deployment export
-} else {
-  // Start the server if not in a serverless environment
-  const PORT = process.env.PORT || 8000;
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
+
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
