@@ -18,9 +18,10 @@ const __dirname = path.dirname(__filename);
 
 // MongoDB connection
 mongoose
-  .connect(
-    "mongodb+srv://fawadiqbal274:12345@travelstory.exbeg.mongodb.net/test?retryWrites=true&w=majority&appName=travelstory"
-  )
+  .connect(process.env.MONGO_DB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Could not connect to MongoDB...", err));
 
@@ -32,7 +33,12 @@ app.use(travelStoryRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Serverless function check
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  const PORT = process.env.PORT || 8000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
