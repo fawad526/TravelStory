@@ -18,7 +18,9 @@ const __dirname = path.dirname(__filename);
 
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGO_DB_URL)
+  .connect(
+    "mongodb+srv://fawadiqbal274:12345@travelstory.exbeg.mongodb.net/test?retryWrites=true&w=majority&appName=travelstory"
+  )
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Could not connect to MongoDB...", err));
 
