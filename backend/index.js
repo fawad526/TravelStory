@@ -7,13 +7,21 @@ import travelStoryRoutes from "./routes/travelStory.routes.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
+// Load environment variables
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+// Configure CORS to allow specific origins
+const allowedOrigins = [
+  "https://travel-story-o18hzltfn-fawad526s-projects.vercel.app",
+  "https://travel-story-five.vercel.app", // Add your production frontend URL
+];
+
 app.use(
   cors({
-    origin: "https://travel-story-o18hzltfn-fawad526s-projects.vercel.app/",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -23,15 +31,15 @@ const __dirname = path.dirname(__filename);
 
 // MongoDB connection using environment variable
 mongoose
-  .connect(process.env.MONGO_DB_URL)
+  .connect(process.env.MONGO_DB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Could not connect to MongoDB...", err));
 
-// Routes
+// Use routes
 app.use(authRoutes);
 app.use(travelStoryRoutes);
 
-// Serve static files
+// Serve static files for uploads and assets
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
