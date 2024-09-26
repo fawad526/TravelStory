@@ -11,7 +11,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,12 +30,12 @@ app.use(travelStoryRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
-// Serverless function check
-if (process.env.VERCEL) {
-  module.exports = app;
-} else {
+// Only export the app for serverless environment if VERCEL is defined
+
+  // Otherwise, start the server for local development
   const PORT = process.env.PORT || 8000;
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
-}
+
+  export default app;
