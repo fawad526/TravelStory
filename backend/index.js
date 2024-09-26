@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://travelstory-frontend.vercel.app",
+    origin: "https://travel-story-o18hzltfn-fawad526s-projects.vercel.app/",
     credentials: true,
   })
 );
