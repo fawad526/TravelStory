@@ -11,7 +11,12 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: "https://travel-story-five.vercel.app/login", // Update with your frontend URL
+    credentials: true,
+  })
+);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,10 +34,10 @@ app.use(travelStoryRoutes);
 // Serve static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
-
+export default app;
 // Only export `app` in serverless environments (like Vercel)
 if (process.env.VERCEL) {
-  export default app;  // Serverless deployment export
+  export default app;  // Export for Vercel
 } else {
   // Start the server if not in a serverless environment
   const PORT = process.env.PORT || 8000;
