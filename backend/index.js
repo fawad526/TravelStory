@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://travel-story-o18hzltfn-fawad526s-projects.vercel.app/",
+    origin: "https://travel-story-o18hzltfn-fawad526s-projects.vercel.app",
     credentials: true,
   })
 );
@@ -34,6 +34,17 @@ app.use(travelStoryRoutes);
 // Serve static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
+
+// Root route
+app.get('/', (req, res) => {
+    res.send('Welcome to the Travel Story API');
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 // Start the server
 const PORT = process.env.PORT || 8000;
