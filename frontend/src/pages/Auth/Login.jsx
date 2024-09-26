@@ -30,7 +30,7 @@ const Login = () => {
 
     // Login API Call
     try {
-      const response = await axiosInstance.post("/login", {
+      const response = await axiosInstance.post("https://travel-story-api.vercel.app/login", {
         email: email,
         password: password,
       });
