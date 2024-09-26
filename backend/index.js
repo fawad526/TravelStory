@@ -37,7 +37,7 @@ app.use("/assets", express.static(path.join(__dirname, "assets")));
 export default app;
 // Only export `app` in serverless environments (like Vercel)
 if (process.env.VERCEL) {
-  export default app;  // Export for Vercel
+  // Serverless deployment export
 } else {
   // Start the server if not in a serverless environment
   const PORT = process.env.PORT || 8000;
