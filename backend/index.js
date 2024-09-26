@@ -30,12 +30,13 @@ app.use(travelStoryRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
-// Only export the app for serverless environment if VERCEL is defined
-
-  // Otherwise, start the server for local development
+// Only export `app` in serverless environments (like Vercel)
+if (process.env.VERCEL) {
+  export default app;  // Serverless deployment export
+} else {
+  // Start the server if not in a serverless environment
   const PORT = process.env.PORT || 8000;
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
-
-  export default app;
+}
