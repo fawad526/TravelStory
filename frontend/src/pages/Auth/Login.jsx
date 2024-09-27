@@ -13,13 +13,13 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
+
     // Validate Email
     if (!validateEmail(email)) {
       setError("Please enter a valid email address");
       return;
     }
-    
+
     // Validate Password
     if (!password) {
       setError("Please enter your password");
@@ -30,14 +30,16 @@ const Login = () => {
 
     // Login API Call
     try {
-      const response = await axiosInstance.post("https://travel-story-api.vercel.app/login", {
-        email: email,
-        password: password,
-      });
+      const response = await axiosInstance.post(
+        "https://travel-story-api.vercel.app/login",
+        {
+          email: email,
+          password: password,
+        }
+      );
       console.log("Login response:", response.data);
 
       if (response.data && response.data.accessTokenSecret) {
-    
         console.log("Access Token:", response.data.accessTokenSecret);
         localStorage.setItem("token", response.data.accessTokenSecret);
         navigate("/dashboard");
@@ -45,9 +47,12 @@ const Login = () => {
         setError("Login failed. Please try again.");
       }
     } catch (error) {
-      
       console.error("Login error:", error);
-      if (error.response && error.response.data && error.response.data.message) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
         setError(error.response.data.message);
       } else {
         setError("Something went wrong. Please try again.");
@@ -60,7 +65,12 @@ const Login = () => {
       <div className="login-ui-box right-10 -top-40 " />
       <div className="login-ui-box bg-cyan-200 -bottom-40 right-1/2" />
       <div className="container h-screen flex items-center justify-center px-20 mx-auto">
-        <div className="w-2/4 h-[90vh] flex items-end bg-login-bg-img bg-cover bg-center rounded-lg p-10 z-50">
+        <div
+          style={{
+            backgroundImage: `url('./src/assets/images/signup-bg-img.jpg')`,
+          }}
+          className="w-2/4 h-[90vh] flex items-end  bg-cover bg-center rounded-lg p-10 z-50"
+        >
           <div>
             <h4 className=" text-5xl text-white font-semibold leading-[58px]">
               Capture Your <br /> Memories
