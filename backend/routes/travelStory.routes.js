@@ -38,23 +38,15 @@ router.post("/add-travel-story", authenticateToken, async (req, res) => {
   }
 });
 
-//Route to handle image upload
 router.post("/image-upload", upload.single("image"), (req, res) => {
   try {
     // Check if the file is missing
     if (!req.file) {
-      return res
-        .status(400)
-        .json({ error: true, message: "No image uploaded" });
+      return res.status(400).json({ error: true, message: "No image uploaded" });
     }
 
-    // Use environment variable to set the correct base URL based on deployment
-    const baseUrl = process.env.VERCEL === "true" 
-      ? "https://travel-story-api.vercel.app" 
-      : "http://localhost:8000";
-    
-    // Generate the image URL
-    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    // Get the image URL from Cloudinary
+    const imageUrl = req.file.path; // Cloudinary URL
     
     return res.status(201).json({ imageUrl });
   } catch (error) {
