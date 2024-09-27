@@ -67,7 +67,7 @@ const Login = () => {
       <div className="container h-screen flex items-center justify-center px-20 mx-auto">
         <div
           style={{
-            backgroundImage: `url('./src/assets/images/signup-bg-img.jpg')`,
+            backgroundImage: `url('../signup-bg-img.jpg')`,
           }}
           className="w-2/4 h-[90vh] flex items-end  bg-cover bg-center rounded-lg p-10 z-50"
         >
