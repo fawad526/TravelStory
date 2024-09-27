@@ -105,19 +105,28 @@ const AddEditTravelStory = ({ storyInfo, type, onClose, getAllStories }) => {
       visitedLocation,
       visitedDate,
     });
+  
     if (!title) {
       setError("Please enter title");
+      return;
     }
     if (!story) {
       setError("Please enter story");
+      return;
     }
+  
     setError("");
-
-    if (type === "edit") {
-      updateTravelStory();
-    } else {
-      addNewTravelStory();
-    }
+  
+    setLoading(true); // Start loading
+  
+    setTimeout(async () => {
+      if (type === "edit") {
+        await updateTravelStory();
+      } else {
+        await addNewTravelStory();
+      }
+      setLoading(false); // Stop loading
+    }, 20000); // 20 seconds delay
   };
 
   //Delete story Image and update the story
@@ -144,8 +153,10 @@ const AddEditTravelStory = ({ storyInfo, type, onClose, getAllStories }) => {
         postData
       );
       setStoryImg(null);
+      
     }
-  };
+
+ 
 
   return (
     <div className="relative">
