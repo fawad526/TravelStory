@@ -45,20 +45,25 @@ router.post("/image-upload", upload.single("image"), (req, res) => {
     if (!req.file) {
       return res
         .status(400)
-        .json({ error: true, message: "No image uploaded" }); // Use 'return' to prevent further execution
+        .json({ error: true, message: "No image uploaded" });
     }
 
-    // Generate the image URL and send a response
-    const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
-    return res.status(201).json({ imageUrl }); // 'return' is optional here but good practice
+    // Use environment variable to set the correct base URL based on deployment
+    const baseUrl = process.env.VERCEL === "true" 
+      ? "https://travel-story-api.vercel.app" 
+      : "http://localhost:8000";
+    
+    // Generate the image URL
+    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    
+    return res.status(201).json({ imageUrl });
   } catch (error) {
-    // Handle any errors
-    return res.status(500).json({ error: true, message: error.message }); // Ensure error response is sent only once
+    return res.status(500).json({ error: true, message: error.message });
   }
 });
 
 //Delete an image from upload folder
-//Delete Travel Story
+
 router.delete(
   "/delete-travel-story/:id",
   authenticateToken,

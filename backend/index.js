@@ -15,14 +15,20 @@ app.use(express.json());
 
 // Configure CORS to allow specific origins
 const allowedOrigins = [
-  "https://travel-story-o18hzltfn-fawad526s-projects.vercel.app",
-  "https://travel-story-five.vercel.app", // Add your production frontend URL
+  "http://localhost:5173", // Local development
+  "https://travel-story-five.vercel.app", // Production frontend URL
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
-    credentials: true,
+    origin: (origin, callback) => {
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // Allow cookies and other credentials
   })
 );
 
@@ -31,7 +37,10 @@ const __dirname = path.dirname(__filename);
 
 // MongoDB connection using environment variable
 mongoose
-  .connect(process.env.MONGO_DB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(process.env.MONGO_DB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Could not connect to MongoDB...", err));
 
@@ -44,14 +53,14 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 // Root route
-app.get('/', (req, res) => {
-    res.send('Welcome to the Travel Story API');
+app.get("/", (req, res) => {
+  res.send("Welcome to the Travel Story API");
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
 });
 
 // Start the server
