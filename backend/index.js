@@ -15,6 +15,7 @@ app.use(express.json());
 
 // Configure CORS to allow specific origins
 const allowedOrigins = [
+  "https://travel-story-7rnt6fu1p-fawad526s-projects.vercel.app",//production deployment
   "http://localhost:5173", // Local development
   "https://travel-story-five.vercel.app", // Production frontend URL
 ];
