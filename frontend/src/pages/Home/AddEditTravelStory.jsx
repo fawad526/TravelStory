@@ -97,7 +97,7 @@ const AddEditTravelStory = ({ storyInfo, type, onClose, getAllStories }) => {
     }
   };
 
-  const handleAddOrUpdateClick = () => {
+  const handleAddOrUpdateClick = async () => {
     console.log("Input Data:", {
       title,
       storyImg,
@@ -105,28 +105,24 @@ const AddEditTravelStory = ({ storyInfo, type, onClose, getAllStories }) => {
       visitedLocation,
       visitedDate,
     });
-  
+
     if (!title) {
-      setError("Please enter title");
-      return;
+      setError("Please enter a title");
+      return; // Prevent submission if there's an error
     }
+
     if (!story) {
-      setError("Please enter story");
-      return;
+      setError("Please enter a story");
+      return; // Prevent submission if there's an error
     }
-  
-    setError("");
-  
-    setLoading(true); // Start loading
-  
-    setTimeout(async () => {
-      if (type === "edit") {
-        await updateTravelStory();
-      } else {
-        await addNewTravelStory();
-      }
-      setLoading(false); // Stop loading
-    }, 20000); // 20 seconds delay
+
+    setError(""); // Reset error if all inputs are valid
+
+    if (type === "edit") {
+      await updateTravelStory();
+    } else {
+      await addNewTravelStory();
+    }
   };
 
   //Delete story Image and update the story
@@ -153,10 +149,8 @@ const AddEditTravelStory = ({ storyInfo, type, onClose, getAllStories }) => {
         postData
       );
       setStoryImg(null);
-      
     }
-
- 
+  };
 
   return (
     <div className="relative">

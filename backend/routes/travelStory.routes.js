@@ -1,7 +1,7 @@
 import express from "express";
 import TravelStory from "../models/travelStory.model.js";
 import authenticateToken from "../utilities.js";
-import upload from "../multer.js";
+import upload from "../multer.js"; // Keep this if you have local storage setup
 import fs from "fs";
 import path from "path";
 
@@ -38,24 +38,32 @@ router.post("/add-travel-story", authenticateToken, async (req, res) => {
   }
 });
 
+// Route to handle image upload
 router.post("/image-upload", upload.single("image"), (req, res) => {
   try {
     // Check if the file is missing
     if (!req.file) {
-      return res.status(400).json({ error: true, message: "No image uploaded" });
+      return res
+        .status(400)
+        .json({ error: true, message: "No image uploaded" });
     }
 
-    // Get the image URL from Cloudinary
-    const imageUrl = req.file.path; // Cloudinary URL
-    
+    // Use environment variable to set the correct base URL based on deployment
+    const baseUrl =
+      process.env.VERCEL === "true"
+        ? "https://travel-story-api.vercel.app"
+        : "http://localhost:8000";
+
+    // Generate the image URL
+    const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+
     return res.status(201).json({ imageUrl });
   } catch (error) {
     return res.status(500).json({ error: true, message: error.message });
   }
 });
 
-//Delete an image from upload folder
-
+// Delete an image from upload folder
 router.delete(
   "/delete-travel-story/:id",
   authenticateToken,
@@ -74,17 +82,18 @@ router.delete(
           .status(404)
           .json({ error: true, message: "Travel Story not found" });
       }
-      //Delete travelstory
+
+      // Delete travel story
       await travelStory.deleteOne({ _id: id, userId: userId });
 
-      // Extract the fileName feom the image Url
+      // Extract the fileName from the image Url
       const imageUrl = travelStory.imageUrl;
       const fileName = path.basename(imageUrl);
 
-      //Define the file path
+      // Define the file path
       const filePath = path.join(__dirname, "uploads", fileName);
 
-      //Delete the image file from the uploads folder
+      // Delete the image file from the uploads folder
       fs.unlinkSync(filePath, (err) => {
         if (err) {
           console.error("Failed to delete the file: ", err);
@@ -98,58 +107,7 @@ router.delete(
   }
 );
 
-//Add Travel Story
-router.post("/add-travel-story", authenticateToken, async (req, res) => {
-  const { title, story, visitedLocation, visitedDate, imageUrl } = req.body;
-  const { userId } = req.user; // Extract userId from req.user object
-
-  // Validate fields
-  if (!title || !story || !visitedLocation || !visitedDate || !imageUrl) {
-    return res
-      .status(400)
-      .json({ error: true, message: "All fields are required" });
-  }
-
-  // Convert visitedDate from milliseconds to Date object
-  const parseVisitedDate = new Date(parseInt(visitedDate));
-
-  try {
-    const travelStory = new TravelStory({
-      title,
-      story,
-      visitedLocation,
-      visitedDate: parseVisitedDate,
-      imageUrl,
-      userId: userId,
-    });
-
-    await travelStory.save();
-    res
-      .status(201)
-      .json({ story: travelStory, message: "Story added successfully" });
-  } catch (err) {
-    res.status(400).json({ error: true, message: err.message });
-  }
-});
-
-//Get All Travel Story
-router.get("/get-all-travel-stories", authenticateToken, async (req, res) => {
-  const { userId } = req.user;
-  try {
-    const travelStories = await TravelStory.find({ userId: userId }).sort({
-      isFavourite: -1,
-    });
-    res.status(200).json({
-      stories: travelStories,
-      message: "Stories fetched successfully",
-    });
-  } catch (err) {
-    res.status(400).json({ error: true, message: err.message });
-  }
-});
-
-//Edit Travel story
-
+// Edit Travel story
 router.put("/edit-story/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { title, story, visitedLocation, imageUrl, visitedDate } = req.body;
@@ -161,8 +119,7 @@ router.put("/edit-story/:id", authenticateToken, async (req, res) => {
       .json({ error: true, message: "All fields are required" });
   }
 
-  // Convert visitedDate from milliseconds to Date object
-  const parseVisitedDate = new Date(parseInt(visitedDate));
+  const parsedVisitedDate = new Date(parseInt(visitedDate));
 
   try {
     const travelStory = await TravelStory.findOne({ _id: id, userId: userId });
@@ -178,7 +135,7 @@ router.put("/edit-story/:id", authenticateToken, async (req, res) => {
     travelStory.title = title;
     travelStory.story = story;
     travelStory.visitedLocation = visitedLocation;
-    travelStory.visitedDate = parseVisitedDate;
+    travelStory.visitedDate = parsedVisitedDate;
     travelStory.imageUrl = imageUrl || placeholderImgUrl;
 
     await travelStory.save();
@@ -191,50 +148,23 @@ router.put("/edit-story/:id", authenticateToken, async (req, res) => {
   }
 });
 
-//Delete Travel Story
-router.delete(
-  "/delete-travel-story/:id",
-  authenticateToken,
-  async (req, res) => {
-    const { id } = req.params;
-    const { userId } = req.user;
-
-    try {
-      const travelStory = await TravelStory.findOne({
-        _id: id,
-        userId: userId,
-      });
-
-      if (!travelStory) {
-        return res
-          .status(404)
-          .json({ error: true, message: "Travel Story not found" });
-      }
-      //Delete travelstory
-      await travelStory.deleteOne({ _id: id, userId: userId });
-
-      // Extract the fileName feom the image Url
-      const imageUrl = travelStory.imageUrl;
-      const fileName = path.basename(imageUrl);
-
-      //Define the file path
-      const filePath = path.join(__dirname, "uploads", fileName);
-
-      //Delete the image file from the uploads folder
-      fs.unlinkSync(filePath, (err) => {
-        if (err) {
-          console.error("Failed to delete the file: ", err);
-          return;
-        }
-      });
-      res.status(200).json({ message: "Travel Story deleted successfully" });
-    } catch (err) {
-      res.status(500).json({ error: true, message: err.message });
-    }
+// Get All Travel Stories
+router.get("/get-all-travel-stories", authenticateToken, async (req, res) => {
+  const { userId } = req.user;
+  try {
+    const travelStories = await TravelStory.find({ userId: userId }).sort({
+      isFavourite: -1,
+    });
+    res.status(200).json({
+      stories: travelStories,
+      message: "Stories fetched successfully",
+    });
+  } catch (err) {
+    res.status(400).json({ error: true, message: err.message });
   }
-);
+});
 
-//update the travel story
+// Update isFavourites
 router.put("/update-isfav/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { isFavourites } = req.body;
@@ -256,7 +186,7 @@ router.put("/update-isfav/:id", authenticateToken, async (req, res) => {
   }
 });
 
-//Search stories
+// Search stories
 router.get("/search", authenticateToken, async (req, res) => {
   const { query } = req.query;
   const { userId } = req.user;
@@ -280,17 +210,14 @@ router.get("/search", authenticateToken, async (req, res) => {
   }
 });
 
-//filter travel stories by date range
+// Filter travel stories by date range
 router.get("/travel-stories/filter", authenticateToken, async (req, res) => {
   const { startDate, endDate } = req.query;
   const { userId } = req.user;
 
   try {
-    //Convert startDate and endDate from milliseconds to Date object
     const start = new Date(parseInt(startDate));
     const end = new Date(parseInt(endDate));
-
-    //find travel stories that belong to the authenticated user and fall within the specified date range
 
     const filteredStories = await TravelStory.find({
       userId: userId,
